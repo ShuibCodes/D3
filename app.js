@@ -76,26 +76,57 @@
 
 
 
-const svg = d3.select('svg');
+// const svg = d3.select('svg');
 
-// grabbing data
-d3.json('planet.json').then(data =>{
-    // just joining data to circs
-    const circs = svg.selectAll('circle')
-    .data(data);
+// // grabbing data
+// d3.json('planet.json').then(data =>{
+//     // just joining data to circs
+//     const circs = svg.selectAll('circle')
+//     .data(data);
 
-    // add attrs to circs already in DOMN 
-    circs.attr('cy', 200)
-    .attr('cx', d => d.distance)
-    .attr('r', d => d.radius)
-    .attr('fill' , d => d.fill)
+//     // add attrs to circs already in DOMN 
+//     circs.attr('cy', 200)
+//     .attr('cx', d => d.distance)
+//     .attr('r', d => d.radius)
+//     .attr('fill' , d => d.fill)
 
-// append the enter selection to the DOM
+// // append the enter selection to the DOM
 
-    circs.enter()
-        .append('circle')  .attr('cx', d => d.distance)
-        .attr('cy', 200) 
-        .attr('r', d => d.radius)
-        .attr('fill' , d => d.fill)
+//     circs.enter()
+//         .append('circle')  .attr('cx', d => d.distance)
+//         .attr('cy', 200) 
+//         .attr('r', d => d.radius)
+//         .attr('fill' , d => d.fill)
 
-})
+// })
+
+const svg = d3.select('svg')
+
+d3.json('menu.json').then( data =>{
+
+// scalling down the long bars with a liner scale
+    const y = d3.scaleLinear()
+        .domain([0,1000])
+        .range([0,500]);
+
+
+    // join the data to rect
+
+    const rects = svg.selectAll('rect')
+        .data(data);
+
+    // update rect in the dom 
+    rects.attr('width', 50)
+        // pass order value thru the ScaleLiner
+        .attr('height', d => y(d.orders))
+        .attr('fill', 'orange')
+        .attr('x', (d,i) => i * 70)
+    // append the enter selection to the dom 
+    rects.enter()
+        .append('rect')
+        .attr('height', d => y(d.orders))
+        .attr('width',50 )
+        .attr('fill', 'orange')
+        .attr('x', (d,i) => i * 70)
+
+});
