@@ -100,55 +100,62 @@
 
 // })
 
+// 1.
+
 const svg = d3.select('.canvas')
     .append('svg')
     .attr('width', 600)
     .attr('height', 600)
 
-/// create margins and dimensions 
-
+/// 2 . create margins and dimensions 
+// setting margin width and heights
 const margin = {top:20 , right:20, bottom: 100, left: 100}
+// our svg width and hieght was set above: 600's. We need to minus our overall width/height from the specified margins to get the graph width/height 
 const graphWidth = 600 - margin.left - margin.right 
 const graphHeight = 600 - margin.top - margin.bottom 
 
+
+
+
+// 7. grouping it so we can tranlsate whole graph 
 const graph = svg.append('g')
         .attr('width', graphWidth)
         .attr('height', graphHeight)
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
 
-const xAxisGroup = graph.append('g')
-    .attr('transform', `translate(0, ${graphHeight})`)
+        // 8. grouping x-axis and y-axis, so it moves with the graph.
+        const xAxisGroup = graph.append('g')
+            .attr('transform', `translate(0, ${graphHeight})`)
 
-const yAxisGroup = graph.append('g')
+        const yAxisGroup = graph.append('g')
+
+
 
 
 d3.json('menu.json').then( data =>{
 
-// scalling down the long bars with a liner scale
+// 6. scalling down the long bars with a liner scale
     const y = d3.scaleLinear()
-        .domain([0,d3.max(data, d =>d.orders)])
+        .domain([0,  d3.max(data, d =>d.orders)])
         .range([graphHeight, 0])
 
 
-    const min = d3.min(data, d =>d.orders)
-    // const max = d3.max(data, d =>d.orders)
-    
- // returns array with smalles number and highest number
-    const extend = d3.extent(data, d => d.orders)
-// Scale Band for X-axis
+
+// 7. Scale Band for X-axis
 
     const x = d3.scaleBand()
                 .domain(data.map(item => item.name))
                 .range([0,500])
                 .paddingInner(0.2)
                 .paddingOuter(0.2)
-    // join the data to rect
+
+// 3. join the data to rect
 
     const rects = graph.selectAll('rect')
         .data(data);
 
-    // update rect in the dom 
+    // 4. update rect in the dom 
     rects.attr('width', x.bandwidth)
         // pass order value thru the ScaleLiner
         .attr('height', d => graphHeight - y(d.orders))
@@ -156,7 +163,7 @@ d3.json('menu.json').then( data =>{
         .attr('x', d => (d.name))
         .attr('y', d => y(d.orders))
 
-    // append the enter selection to the dom 
+    // 5.  append the enter selection to the dom 
     rects.enter()
         .append('rect')
         .attr('height', d => graphHeight -  y(d.orders))
@@ -166,15 +173,16 @@ d3.json('menu.json').then( data =>{
         .attr('y', d => y(d.orders))
 
 
-    // create and call the axis
+
+    // 9. create and call the axis
 
     const xAxis= d3.axisBottom(x)
     const yAxis = d3.axisLeft(y)
-    .ticks(3)
+    .ticks(4)
     .tickFormat(d => d +  '   '  + ' orders ');
-    
 
-    // generate svg's and add them to groups
+
+    // 10. generate svg's and add them to groups
     xAxisGroup.call(xAxis)
     yAxisGroup.call(yAxis)
 
