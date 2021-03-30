@@ -100,33 +100,85 @@
 
 // })
 
-const svg = d3.select('svg')
+const svg = d3.select('.canvas')
+    .append('svg')
+    .attr('width', 600)
+    .attr('height', 600)
+
+/// create margins and dimensions 
+
+const margin = {top:20 , right:20, bottom: 100, left: 100}
+const graphWidth = 600 - margin.left - margin.right 
+const graphHeight = 600 - margin.top - margin.bottom 
+
+const graph = svg.append('g')
+        .attr('width', graphWidth)
+        .attr('height', graphHeight)
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+
+const xAxisGroup = graph.append('g')
+    .attr('transform', `translate(0, ${graphHeight})`)
+
+const yAxisGroup = graph.append('g')
+
 
 d3.json('menu.json').then( data =>{
 
 // scalling down the long bars with a liner scale
     const y = d3.scaleLinear()
-        .domain([0,1000])
-        .range([0,500]);
+        .domain([0,d3.max(data, d =>d.orders)])
+        .range([graphHeight, 0])
 
 
+    const min = d3.min(data, d =>d.orders)
+    // const max = d3.max(data, d =>d.orders)
+    
+ // returns array with smalles number and highest number
+    const extend = d3.extent(data, d => d.orders)
+// Scale Band for X-axis
+
+    const x = d3.scaleBand()
+                .domain(data.map(item => item.name))
+                .range([0,500])
+                .paddingInner(0.2)
+                .paddingOuter(0.2)
     // join the data to rect
 
-    const rects = svg.selectAll('rect')
+    const rects = graph.selectAll('rect')
         .data(data);
 
     // update rect in the dom 
-    rects.attr('width', 50)
+    rects.attr('width', x.bandwidth)
         // pass order value thru the ScaleLiner
-        .attr('height', d => y(d.orders))
+        .attr('height', d => graphHeight - y(d.orders))
         .attr('fill', 'orange')
-        .attr('x', (d,i) => i * 70)
+        .attr('x', d => (d.name))
+        .attr('y', d => y(d.orders))
+
     // append the enter selection to the dom 
     rects.enter()
         .append('rect')
-        .attr('height', d => y(d.orders))
-        .attr('width',50 )
+        .attr('height', d => graphHeight -  y(d.orders))
+        .attr('width', x.bandwidth)
         .attr('fill', 'orange')
-        .attr('x', (d,i) => i * 70)
+        .attr('x', d => x(d.name))
+        .attr('y', d => y(d.orders))
+
+
+    // create and call the axis
+
+    const xAxis= d3.axisBottom(x)
+    const yAxis = d3.axisLeft(y)
+    .ticks(3)
+    .tickFormat(d => d +  '   '  + ' orders ');
+    
+
+    // generate svg's and add them to groups
+    xAxisGroup.call(xAxis)
+    yAxisGroup.call(yAxis)
+
+    //formatting ticks
+
 
 });
