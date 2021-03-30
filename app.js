@@ -138,6 +138,7 @@ d3.json('menu.json').then( data =>{
 // 6. scalling down the long bars with a liner scale
     const y = d3.scaleLinear()
         .domain([0,  d3.max(data, d =>d.orders)])
+            // in this order to so it goes from 0 - 1500 orders
         .range([graphHeight, 0])
 
 
